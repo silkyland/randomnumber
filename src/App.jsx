@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Transition } from "@headlessui/react";
+import ConfettiGenerator from "confetti-js";
 
 const generateRandomNumbers = (count, initialValue = 0) => {
   const numbers = [];
@@ -12,20 +12,11 @@ const generateRandomNumbers = (count, initialValue = 0) => {
   return numbers.map((number) => (number ? number : initialValue));
 };
 
-
-const getRandomTransition = () => {
-  const transitions = [
-    "transition-transform duration-1000 ease-out",
-    "transition-opacity duration-1000 ease-in-out",
-    "transition-colors duration-1000 ease-in-out",
-  ];
-  return transitions[Math.floor(Math.random() * transitions.length)];
-};
-
 export default function Home() {
   const [randomNumbers, setRandomNumbers] = useState(generateRandomNumbers(5));
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef();
+
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -76,44 +67,59 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    const confettiSettings = { target: 'my-canvas' };
+    const confetti = new ConfettiGenerator(confettiSettings);
+    confetti.render();
+
+    return () => confetti.clear();
+  }, [])
+
+  const bgColors = [
+    "bg-red-500",
+    "bg-yellow-500",
+    "bg-green-500",
+    "bg-blue-500",
+    "bg-indigo-500",
+    "bg-purple-500",
+  ];
+
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <div className="flex space-x-4">
-        {randomNumbers.map((number) => (
-          <Transition
-            key={number}
-            show={true}
-            enter={getRandomTransition()}
-            leave={getRandomTransition()}
-            className="p-4 border border-gray-400 rounded-md text-3xl font-bold"
+      <div className="absolute z-10 flex flex-col items-center">
+        <div className="flex space-x-4">
+          {randomNumbers.map((number, index) => (
+            <div key={number} className={`p-4 border border-gray-400 rounded-md text-3xl font-bold ${bgColors[index]}`}>
+              <Box value={number} initialValue={0} isRunning={isRunning} />
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 space-x-4">
+          <button
+            className={`px-4 py-2  w-52  text-white rounded-md ${isRunning ? " bg-red-500" : "bg-blue-500"
+              }`}
+            onClick={isRunning ? stop : start}
           >
-            <Box value={number} transition={getRandomTransition()} initialValue={0} />
-          </Transition>
-        ))}
+            {isRunning ? "หยุด" : "เริ่มสุ่ม"}
+          </button>
+        </div>
+        <div className="mt-2">
+          <small className="text-gray-500">
+            คลิกที่ปุ่ม เริ่มสุ่ม หรือกด <kbd className="bg-slate-700 p-1 rounded-md text-white">SPACE BAR</kbd>
+          </small>
+        </div>
       </div>
-      <div className="mt-4 space-x-4">
-        <button
-          className={`px-4 py-2  w-52  text-white rounded-md ${isRunning ? " bg-red-500" : "bg-blue-500"
-            }`}
-          onClick={isRunning ? stop : start}
-        >
-          {isRunning ? "หยุด" : "เริ่มสุ่ม"}
-        </button>
-      </div>
-      <div className="mt-2">
-        <small className="text-gray-500">
-          คลิกที่ปุ่ม เริ่มสุ่ม หรือกด <kbd className="bg-slate-700 p-1 rounded-md text-white">SPACE BAR</kbd>
-        </small>
-      </div>
+      <canvas id="my-canvas">
+      </canvas>
     </div>
   );
 }
 
 // eslint-disable-next-line react/prop-types
-const Box = ({ value, transition, initialValue }) => {
+const Box = ({ value, initialValue, isRunning }) => {
   return (
-    <div className={`w-36 h-36 flex justify-center text-5xl items-center ${transition}`}>
+    <div className={`w-36 h-36 flex justify-center text-5xl items-center transition-all ${isRunning ? "" : "animate__animated animate__pulse animate__infinite"} text-white`}>
       {value ? value : initialValue}
     </div>
   );
