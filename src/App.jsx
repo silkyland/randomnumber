@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Transition } from "@headlessui/react";
 
 const generateRandomNumbers = (count, initialValue = 0) => {
@@ -27,22 +27,55 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef();
 
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.code === "Space") {
+        isRunning ? stop() : start();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    }
+  }, [isRunning]);
+
+
   const start = () => {
     if (!isRunning) {
       setRandomNumbers(generateRandomNumbers(5));
       setIsRunning(true);
       timerRef.current = setInterval(() => {
         setRandomNumbers(generateRandomNumbers(5));
-      }, 1000);
+      }, 10);
     }
   };
 
   const stop = () => {
     if (isRunning) {
       setIsRunning(false);
-      clearInterval(timerRef.current);
+      let intervalId = timerRef.current;
+      let delay = 10; // start with 10ms delay
+      let stopCount = 20; // stop after 20 iterations
+      let counter = 0;
+
+      const slowToStop = () => {
+        clearInterval(intervalId);
+        counter++;
+        if (counter < stopCount) {
+          intervalId = setInterval(() => {
+            setRandomNumbers(generateRandomNumbers(5));
+            delay += 10; // increase delay by 10ms for each iteration
+            clearInterval(intervalId);
+            intervalId = setInterval(slowToStop, delay); // use new delay for next iteration
+          }, delay);
+        }
+      };
+
+      slowToStop();
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
@@ -59,23 +92,19 @@ export default function Home() {
           </Transition>
         ))}
       </div>
-      <div className="mt-8 flex space-x-4">
+      <div className="mt-4 space-x-4">
         <button
-          className={`px-4 py-2 bg-blue-500 text-white rounded-md ${isRunning ? "opacity-50 cursor-not-allowed" : ""
+          className={`px-4 py-2  w-52  text-white rounded-md ${isRunning ? " bg-red-500" : "bg-blue-500"
             }`}
-          onClick={start}
-          disabled={isRunning}
+          onClick={isRunning ? stop : start}
         >
-          เริ่ม
+          {isRunning ? "หยุด" : "เริ่มสุ่ม"}
         </button>
-        <button
-          className={`px-4 py-2 bg-red-500 text-white rounded-md ${!isRunning ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          onClick={stop}
-          disabled={!isRunning}
-        >
-          หยุด
-        </button>
+      </div>
+      <div className="mt-2">
+        <small className="text-gray-500">
+          คลิกที่ปุ่ม เริ่มสุ่ม หรือกด <kbd className="bg-slate-700 p-1 rounded-md text-white">SPACE BAR</kbd>
+        </small>
       </div>
     </div>
   );
@@ -84,7 +113,7 @@ export default function Home() {
 // eslint-disable-next-line react/prop-types
 const Box = ({ value, transition, initialValue }) => {
   return (
-    <div className={`w-16 h-16 flex justify-center items-center ${transition}`}>
+    <div className={`w-36 h-36 flex justify-center text-5xl items-center ${transition}`}>
       {value ? value : initialValue}
     </div>
   );
