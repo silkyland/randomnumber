@@ -13,31 +13,26 @@ const generateRandomNumbers = (count, initialValue = 0) => {
 };
 
 export default function Home() {
-  const [randomNumbers, setRandomNumbers] = useState(generateRandomNumbers(5));
+  const [numberOfItems, setNumberOfItems] = useState(5);
+  const [randomNumbers, setRandomNumbers] = useState(generateRandomNumbers(numberOfItems));
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef();
 
-
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.code === "Space") {
-        isRunning ? stop() : start();
-      }
+    const localNumberOfItems = window.localStorage.getItem("numberOfItems");
+    console.log(localNumberOfItems);
+    if (localNumberOfItems) {
+      setNumberOfItems(+localNumberOfItems);
+      setRandomNumbers(generateRandomNumbers(+localNumberOfItems));
     }
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    }
-  }, [isRunning]);
-
+  }, []);
 
   const start = () => {
     if (!isRunning) {
-      setRandomNumbers(generateRandomNumbers(5));
+      setRandomNumbers(generateRandomNumbers(numberOfItems));
       setIsRunning(true);
       timerRef.current = setInterval(() => {
-        setRandomNumbers(generateRandomNumbers(5));
+        setRandomNumbers(generateRandomNumbers(numberOfItems));
       }, 10);
     }
   };
@@ -55,11 +50,19 @@ export default function Home() {
         counter++;
         if (counter < stopCount) {
           intervalId = setInterval(() => {
-            setRandomNumbers(generateRandomNumbers(5));
+            setRandomNumbers(generateRandomNumbers(numberOfItems));
             delay += 10; // increase delay by 10ms for each iteration
             clearInterval(intervalId);
             intervalId = setInterval(slowToStop, delay); // use new delay for next iteration
           }, delay);
+        } else {
+          setTimeout(() => {
+            setRandomNumbers(generateRandomNumbers(numberOfItems));
+          }
+            , 1000);
+          setTimeout(() => {
+            setRandomNumbers(generateRandomNumbers(numberOfItems));
+          }, 2000);
         }
       };
 
@@ -82,13 +85,63 @@ export default function Home() {
     "bg-blue-500",
     "bg-indigo-500",
     "bg-purple-500",
+    "bg-pink-500",
+    "bg-cyan-500",
+    "bg-rose-500",
+    "bg-fuchsia-500",
   ];
+
+
+
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    window.localStorage.setItem("numberOfItems", numberOfItems);
+    setRandomNumbers(generateRandomNumbers(numberOfItems));
+  };
+
+  const handleChange = (event) => {
+    setNumberOfItems(event.target.value);
+  };
+
 
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
-      <div className="absolute z-10 flex flex-col items-center">
-        <div className="flex space-x-4">
+      {/* setting button top right */}
+      <div className="absolute z-20 top-0 right-0 m-4">
+        <button
+          className="p-2 rounded-md  text-gray-500"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          {menuOpen ? <i className="fa fa-times fa-2x"></i> : <i className="fa fa-cog fa-2x hover:animate-spin"></i>}
+        </button>
+        <form className={`absolute border bg-white w-52 p-4 top-6 right-0 m-4 ${menuOpen ? "" : "hidden"}`} onSubmit={handleSubmit}>
+          <div className="flex flex-col space-y-2">
+            <label htmlFor="numberOfItems">จำนวนตัวเลข</label>
+            <input
+              type="number"
+              id="numberOfItems"
+              name="numberOfItems"
+              min="1"
+              max="10"
+              value={numberOfItems}
+              onChange={handleChange}
+              className="border border-gray-400 rounded-md p-2"
+            />
+          </div>
+          <button
+            type="submit"
+            className="px-4 py-2 mt-2 bg-blue-500 text-white rounded-md"
+          >
+            แก้ไข
+          </button>
+
+        </form>
+      </div>
+      <div className="absolute z-10 flex flex-col items-center justify-center">
+        <div className={`flex flex-wrap gap-4 w-full items-center justify-center`}>
           {randomNumbers.map((number, index) => (
             <div key={number} className={`p-4 border border-gray-400 rounded-md text-3xl font-bold ${bgColors[index]}`}>
               <Box value={number} initialValue={0} isRunning={isRunning} />
@@ -106,7 +159,8 @@ export default function Home() {
         </div>
         <div className="mt-2">
           <small className="text-gray-500">
-            คลิกที่ปุ่ม เริ่มสุ่ม หรือกด <kbd className="bg-slate-700 p-1 rounded-md text-white">SPACE BAR</kbd>
+            คลิกที่ปุ่ม เริ่มสุ่ม
+            {/* <kbd className="bg-slate-700 p-1 rounded-md text-white">SPACE BAR</kbd> */}
           </small>
         </div>
       </div>
