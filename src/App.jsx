@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import ConfettiGenerator from "confetti-js";
 import './assets/confetti.min';
-import Confetti from "./assets/confetti.min";
+import Lottie from "lottie-react";
+import confetti from "./assets/confeti.json";
+import congrats from "./assets/congrats.json";
 
 const generateRandomNumbers = (count, initialValue = 0) => {
   const numbers = [];
@@ -21,6 +23,8 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const timerRef = useRef();
 
+  const [finished, setFinished] = useState(false);
+
   useEffect(() => {
     const localNumberOfItems = window.localStorage.getItem("numberOfItems");
     console.log(localNumberOfItems);
@@ -34,6 +38,7 @@ export default function Home() {
     if (!isRunning) {
       setRandomNumbers(generateRandomNumbers(numberOfItems));
       setIsRunning(true);
+      setFinished(false);
       timerRef.current = setInterval(() => {
         setRandomNumbers(generateRandomNumbers(numberOfItems));
       }, 10);
@@ -66,17 +71,10 @@ export default function Home() {
           setTimeout(() => {
             setRandomNumbers(generateRandomNumbers(numberOfItems));
 
-          }, 2000);
+          }, 4000);
           setTimeout(() => {
-
-            refs.current.map((ref) => {
-              setTimeout(() => {
-                //ref.classList.add("animate__animated", "animate__bounceIn", "goldbx-gradient");
-                console.log(ref.id);
-               // let confetti = new Confetti(ref.id);
-              });
-            }, 2000);
-          }, 3000);
+            setFinished(true);
+          }, 5000);
         }
       };
       slowToStop();
@@ -106,6 +104,7 @@ export default function Home() {
 
   // array refs
   const refs = useRef([]);
+
 
 
 
@@ -151,18 +150,24 @@ export default function Home() {
           >
             แก้ไข
           </button>
-
         </form>
       </div>
       <div className="absolute z-10 flex flex-col items-center justify-center">
         <div className={`flex flex-wrap gap-4 w-full items-center justify-center`}>
           {randomNumbers.map((number, index) => (
-            <div key={number} className={`p-4 border border-gray-400 rounded-md text-3xl font-bold ${bgColors[index]}`} ref={(el) => (refs.current[index] = el)} id={`box-${index}`}>
-              <Box value={number} initialValue={0} isRunning={isRunning} />
+            <div key={number} className={`
+            border border-gray-400 rounded-md  ${bgColors[index]}
+            text-3xl font-bold `} ref={(el) => (refs.current[index] = el)} id={`box-${index}`}>
+              <Box value={number} initialValue={0} isRunning={isRunning} index={index} />
             </div>
           ))}
         </div>
-        <div className="mt-4 space-x-4">
+        <Lottie animationData={confetti} className={`absolute -left-52 top-0 w-72 ${finished ? '' : 'hidden'}`} />
+        <Lottie animationData={congrats} className={`absolute  w-72  ${finished ? '' : 'hidden'}`} />
+        <Lottie animationData={congrats} className={`absolute left-5 w-72  top-0 ${finished ? '' : 'hidden'}`} />
+        <Lottie animationData={congrats} className={`absolute right-5  w-72 ${finished ? '' : 'hidden'}`} />
+        <Lottie animationData={confetti} className={`absolute -right-52 top-0 w-72 transform  rotate-90 -scale-x-100 -scale-y-100  ${finished ? '' : 'hidden'}`} id="conf-2" />
+        <div className="mt-4 space-x-4 z-50">
           <button
             className={`px-4 py-2  w-52  text-white rounded-md ${isRunning ? " bg-red-500" : "bg-blue-500"
               }`}
@@ -184,11 +189,20 @@ export default function Home() {
   );
 }
 
+const faList = [
+  "fa-star",
+  "fa-heart",
+  "fa-bell",
+  "fa-bolt",
+  "fa-bomb",
+  "fa-bug",
+];
+
 // eslint-disable-next-line react/prop-types
-const Box = ({ value, initialValue, isRunning }) => {
+const Box = ({ value, initialValue, isRunning, index }) => {
   return (
-    <div className={`w-36 h-36 flex justify-center text-5xl items-center transition-all ${isRunning ? "" : ""} text-white relative`}>
-      {/* <i className="fa fa-3x fa-star right-0 -top-10 absolute text-6xl animate__animated animate__rotateIn opacity-30"></i> */}
+    <div className={`w-48 h-48 flex justify-center text-5xl items-center transition-all ${isRunning ? "" : ""} text-white relative overflow-hidden`}>
+      <i className={`fa fa-3x ${faList[index]} -right-5 top-10 absolute text-6xl opacity-30`}></i>
       <span className="z-30">{value ? value : initialValue}</span>
     </div>
   );

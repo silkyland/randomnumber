@@ -9,3 +9,19 @@
 .goldbx-gradient {
   background: linear-gradient(to right, #f09819, #edde5d);
 }
+
+.scale-x-1 {
+  transform: scaleX(-1);
+}
+
+.scale-y-1 {
+  transform: scaleY(-1);
+}
+
+.-translate-x-1 {
+  transform: translateX(-1rem);
+}
+
+.-translate-y-1 {
+  transform: translateY(-1rem);
+}
