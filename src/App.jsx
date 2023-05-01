@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import ConfettiGenerator from "confetti-js";
+import './assets/confetti.min';
+import Confetti from "./assets/confetti.min";
 
 const generateRandomNumbers = (count, initialValue = 0) => {
   const numbers = [];
@@ -13,6 +15,7 @@ const generateRandomNumbers = (count, initialValue = 0) => {
 };
 
 export default function Home() {
+
   const [numberOfItems, setNumberOfItems] = useState(5);
   const [randomNumbers, setRandomNumbers] = useState(generateRandomNumbers(numberOfItems));
   const [isRunning, setIsRunning] = useState(false);
@@ -62,10 +65,20 @@ export default function Home() {
             , 1000);
           setTimeout(() => {
             setRandomNumbers(generateRandomNumbers(numberOfItems));
+
           }, 2000);
+          setTimeout(() => {
+
+            refs.current.map((ref) => {
+              setTimeout(() => {
+                //ref.classList.add("animate__animated", "animate__bounceIn", "goldbx-gradient");
+                console.log(ref.id);
+               // let confetti = new Confetti(ref.id);
+              });
+            }, 2000);
+          }, 3000);
         }
       };
-
       slowToStop();
     }
   };
@@ -91,6 +104,9 @@ export default function Home() {
     "bg-fuchsia-500",
   ];
 
+  // array refs
+  const refs = useRef([]);
+
 
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -104,8 +120,6 @@ export default function Home() {
   const handleChange = (event) => {
     setNumberOfItems(event.target.value);
   };
-
-
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center">
@@ -143,7 +157,7 @@ export default function Home() {
       <div className="absolute z-10 flex flex-col items-center justify-center">
         <div className={`flex flex-wrap gap-4 w-full items-center justify-center`}>
           {randomNumbers.map((number, index) => (
-            <div key={number} className={`p-4 border border-gray-400 rounded-md text-3xl font-bold ${bgColors[index]}`}>
+            <div key={number} className={`p-4 border border-gray-400 rounded-md text-3xl font-bold ${bgColors[index]}`} ref={(el) => (refs.current[index] = el)} id={`box-${index}`}>
               <Box value={number} initialValue={0} isRunning={isRunning} />
             </div>
           ))}
@@ -173,8 +187,9 @@ export default function Home() {
 // eslint-disable-next-line react/prop-types
 const Box = ({ value, initialValue, isRunning }) => {
   return (
-    <div className={`w-36 h-36 flex justify-center text-5xl items-center transition-all ${isRunning ? "" : "animate__animated animate__pulse animate__infinite"} text-white`}>
-      {value ? value : initialValue}
+    <div className={`w-36 h-36 flex justify-center text-5xl items-center transition-all ${isRunning ? "" : ""} text-white relative`}>
+      {/* <i className="fa fa-3x fa-star right-0 -top-10 absolute text-6xl animate__animated animate__rotateIn opacity-30"></i> */}
+      <span className="z-30">{value ? value : initialValue}</span>
     </div>
   );
 };

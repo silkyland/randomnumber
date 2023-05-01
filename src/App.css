@@ -1,0 +1,11 @@
+.redbx {
+  background-color: #f44336;
+}
+
+.bluebx {
+  background-color: #008cba;
+}
+
+.goldbx-gradient {
+  background: linear-gradient(to right, #f09819, #edde5d);
+}
