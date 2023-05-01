@@ -21,16 +21,21 @@ export default function Home() {
   const [numberOfItems, setNumberOfItems] = useState(5);
   const [randomNumbers, setRandomNumbers] = useState(generateRandomNumbers(numberOfItems));
   const [isRunning, setIsRunning] = useState(false);
+  const [delayTime, setDelayTime] = useState(10);
   const timerRef = useRef();
 
   const [finished, setFinished] = useState(false);
 
   useEffect(() => {
     const localNumberOfItems = window.localStorage.getItem("numberOfItems");
+    const localDelayTime = window.localStorage.getItem("delayTime");
     console.log(localNumberOfItems);
     if (localNumberOfItems) {
       setNumberOfItems(+localNumberOfItems);
       setRandomNumbers(generateRandomNumbers(+localNumberOfItems));
+    }
+    if (localDelayTime) {
+      setDelayTime(+localDelayTime);
     }
   }, []);
 
@@ -41,7 +46,7 @@ export default function Home() {
       setFinished(false);
       timerRef.current = setInterval(() => {
         setRandomNumbers(generateRandomNumbers(numberOfItems));
-      }, 10);
+      }, delayTime);
     }
   };
 
@@ -113,11 +118,16 @@ export default function Home() {
   const handleSubmit = (event) => {
     event.preventDefault();
     window.localStorage.setItem("numberOfItems", numberOfItems);
+    window.localStorage.setItem("delayTime", delayTime);
     setRandomNumbers(generateRandomNumbers(numberOfItems));
   };
 
   const handleChange = (event) => {
     setNumberOfItems(event.target.value);
+  };
+
+  const handleDelayChange = (event) => {
+    setDelayTime(event.target.value);
   };
 
   return (
@@ -141,6 +151,19 @@ export default function Home() {
               max="10"
               value={numberOfItems}
               onChange={handleChange}
+              className="border border-gray-400 rounded-md p-2"
+            />
+          </div>
+          <div className="flex flex-col space-y-2 mt-2">
+            <label htmlFor="delayTime">หน่วงเวลา (มิลลิวินาที)</label>
+            <input
+              type="number"
+              id="delayTime"
+              name="delayTime"
+              min="10"
+              max="5000"
+              value={delayTime}
+              onChange={handleDelayChange}
               className="border border-gray-400 rounded-md p-2"
             />
           </div>
